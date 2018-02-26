@@ -1,19 +1,7 @@
-#include "globals.h"
-
-direction_t direction = DIRN_UP;
-int currentFloor = -1;
-state_t state = MOVING_UP;
-int motorRunning = 1;
-int doorOpen = 0;
+#include "elevator_ctrl.h"
 
 
 
-int getCurrentFloor() {
-    return currentFloor;
-}
-void setCurrentFloor(int floor){
-    currentFloor = floor;
-}
 
 state_t getState() {
     return state;
@@ -39,33 +27,26 @@ void setState(state_t s){
     }
 }
 
-direction_t getDirection() {
-    return direction;
-}
-void setDirection(direction_t dir){
-    direction = dir;
-}
-
-int motorIsRunning(){
-    return motorRunning;
-}
-
-int doorIsOpen(){
-    return doorOpen;
-}
-
-
 
 void elevatorInitiate(){
+    direction = DIRN_UP;
     int floor = getFloorSensor();
     if(floor != -1){
-        setCurrentFloor(floor);
+        currentFloor = floor;
     }
     else{
         setState(MOVING_UP);
         while(getFloorSensor() == -1){ /*intentionally empty, waits until it reaches floor*/ }
         setState(WAIT);
     }
+}
+
+void setFloorLight(){
+	if (getFloorSensor() != -1) {
+         currentFloor = getFloorSensor();
+    }
+
+    elev_set_floor_indicator(currentFloor);
 }
 
 void update() {

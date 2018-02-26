@@ -18,5 +18,10 @@ typedef enum {
 
 #define button_t elev_button_type_t
 
+state_t state;
+direction_t direction;
+int currentFloor;
+int motorRunning;
+int doorOpen;
 
 #endif

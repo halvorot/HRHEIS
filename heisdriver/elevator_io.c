@@ -1,16 +1,12 @@
 #include "elevator_io.h"
 
+
 void startMotor() {
-    if (getFloorSensor() != TOP_FLOOR || getDirection() == DOWN) {
-        elev_set_motor_direction(getDirection());
-    }
-    if (getFloorSensor() != BOTTOM_FLOOR || getDirection() == UP) {
-        elev_set_motor_direction(getDirection());
-    }
+    elev_set_motor_direction(direction);
 }
 
 void stopMotor() {
-    elev_set_motor_direction(STOP);
+    elev_set_motor_direction(DIRN_STOP);
 }
 
 void openDoor(){

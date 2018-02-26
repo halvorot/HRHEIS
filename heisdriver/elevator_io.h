@@ -1,6 +1,7 @@
 #ifndef ELEVATOR_IO_H
 #define ELEVATOR_IO_H
 
+#include "elev.h"
 #include "globals.h"
 
 void startMotor();

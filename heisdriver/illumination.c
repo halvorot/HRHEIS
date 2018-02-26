@@ -2,8 +2,8 @@
 
 void setFloorLight(){
 	if (getFloorSensor() != -1) {
-         setCurrentFloor(getFloorSensor());
+         currentFloor = getFloorSensor();
     }
 
-    elev_set_floor_indicator(getCurrentFloor());
+    elev_set_floor_indicator(currentFloor);
 }
