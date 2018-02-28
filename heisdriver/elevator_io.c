@@ -1,8 +1,8 @@
 #include "elevator_io.h"
 //test git
 
-void startMotor() {
-    elev_set_motor_direction(direction);
+void startMotor(direction_t dir) {
+    elev_set_motor_direction(dir);
 }
 
 void stopMotor() {
@@ -19,4 +19,19 @@ void closeDoor(){
 
 int getFloorSensor(){
     return elev_get_floor_sensor_signal();
+}
+
+int stopIsPressed(){
+	return elev_get_stop_signal();
+}
+
+void setStopLamp(){
+	elev_set_stop_lamp(1);
+}
+void resetStopLamp(){
+	elev_set_stop_lamp(0);
+}
+
+void setFloorIndicator(int currFloor){
+	elev_set_floor_indicator(currFloor);
 }

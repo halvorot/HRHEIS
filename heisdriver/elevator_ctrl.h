@@ -6,13 +6,12 @@
 
 
 
-state_t getState();
-
-void setState(state_t s);
-
 void elevatorInitiate();
 
-void setFloorLight();
+void updateFloorLight();
+
+void addToQueue(int floor, button_t button);
+void removeFromQueue(int floor, button_t button);
 
 void update();
 

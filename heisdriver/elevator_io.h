@@ -4,7 +4,7 @@
 #include "elev.h"
 #include "globals.h"
 
-void startMotor();
+void startMotor(drection_t dir);
 void stopMotor();
 
 void openDoor();
@@ -13,5 +13,12 @@ void closeDoor();
 int getFloorSensor();
 
 int getButton(button_t button, int floor);
+
+int stopIsPressed();
+
+void setStopLamp();
+void resetStopLamp();
+
+void setFloorIndicator(int currFloor);
 
 #endif
