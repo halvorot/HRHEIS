@@ -1,31 +1,10 @@
 #include "elevator_ctrl.h"
 
-
-
-
-state_t getState() {
-    return state;
-}
-
-void setState(state_t s){
-    state = s;
-    switch (state) {
-        case MOVING_UP:
-            direction = DIRN_UP;
-            startMotor();
-            break;
-        case MOVING_DOWN:
-            direction = DIRN_DOWN;
-            startMotor();
-            break;
-        case WAIT:
-            direction = DIRN_STOP;
-            stopMotor();
-            break;
-        case EMERGENCY_STOP: //not in use yet
-            break;
-    }
-}
+state_t state;
+direction_t direction;
+int currentFloor;
+int motorRunning;
+int doorOpen;
 
 
 void elevatorInitiate(){
@@ -50,5 +29,23 @@ void setFloorLight(){
 }
 
 void update() {
+    switch (state) {
+        case MOVING_UP:
+            direction = DIRN_UP;
+            startMotor();
+            break;
+        case MOVING_DOWN:
+            direction = DIRN_DOWN;
+            startMotor();
+            break;
+        case WAIT:
+            direction = DIRN_STOP;
+            stopMotor();
+            break;
+        case EMERGENCY_STOP: //not in use yet
+            break;
+    }
+
+
     setFloorLight();
 }
