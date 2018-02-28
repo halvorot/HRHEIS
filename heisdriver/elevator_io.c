@@ -9,16 +9,20 @@ void stopMotor() {
     elev_set_motor_direction(DIRN_STOP);
 }
 
-void openDoor(){
+void io_openDoor(){
     elev_set_door_open_lamp(1);
 }
 
-void closeDoor(){
+void io_closeDoor(){
     elev_set_door_open_lamp(0);
 }
 
 int getFloorSensor(){
     return elev_get_floor_sensor_signal();
+}
+
+int buttonPressed(button_t button, int floor){
+	return elev_get_button_signal(button, floor);
 }
 
 int stopIsPressed(){
@@ -31,6 +35,14 @@ void setStopLamp(){
 void resetStopLamp(){
 	elev_set_stop_lamp(0);
 }
+
+void setButtonLamp(button_t button, int floor){
+	elev_set_button_lamp(button, floor, 1);
+}
+void resetButtonLamp(button_t button, int floor){
+	elev_set_button_lamp(button, floor, 0);
+}
+
 
 void setFloorIndicator(int currFloor){
 	elev_set_floor_indicator(currFloor);

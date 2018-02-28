@@ -1,9 +1,8 @@
 #include "elevator_ctrl.h"
 
-state_t state;
-direction_t direction;
-int currentFloor;
-int motorRunning;
+state_t state; //MOVING_UP, MOVING_DOWN or WAIT (OR EMERGENCY_STOP)
+direction_t direction; //keeps track of what direction we are (or last were) moving in
+int currentFloor; //keeps track of what floor we are (or last were) in.
 int doorOpen;
 
 int queue[N_FLOORS][3];
@@ -26,6 +25,18 @@ void elevatorInitiate(){
     }
 }
 
+
+void openDoor(){
+    io_openDoor();
+    doorOpen = 1;
+}
+void closeDoor(){
+    io_closeDoor();
+    doorOpen = 0;
+}
+
+
+
 void updateFloorLight(){
 	if (getFloorSensor() != -1) {
          currentFloor = getFloorSensor();
@@ -34,50 +45,91 @@ void updateFloorLight(){
     setFloorIndicator(currentFloor);
 }
 
-void addToQueue(int floor, button_t button){
+int getQueue(button_t button, int floor){
+    return queue[floor][button];
+}
+
+void addToQueue(button_t button, int floor){
     queue[floor][button] = 1;
+    setButtonLamp(button, floor);
 }
 
-void removeFromQueue(int floor, button_t button){
+void removeFromQueue(button_t button, int floor){
     queue[floor][button] = 0;
+    resetButtonLamp(button, floor);
 }
 
 
-//removes the correct buttons from queue if the elevator reaches the floor (depending on direction)
+//removes the correct btns from queue and turns off btn light if the elevator reaches the floor and opens door 
+//(depending on direction)
 void checkFloorReachedUpdateQueue(){
     for (int floor = 0; floor < N_FLOORS; ++i)
     {
-        if(floor == getFloorSensor()){
-            removeFromQueue(floor, BUTTON_COMMAND);
+        if(floor == getFloorSensor() && doorOpen){
+            removeFromQueue(BUTTON_COMMAND, floor);
             if (direction == DIRN_UP)
-                removeFromQueue(floor, BUTTON_CALL_UP);
+                removeFromQueue(BUTTON_CALL_UP, floor);
             else if(direction == DIRN_DOWN)
-                removeFromQueue(floor,BUTTON_CALL_DOWN);
+                removeFromQueue(BUTTON_CALL_DOWN, floor);
         }
     }
 }
 
-//IKKE FERDIG/////////////////
-void Queue(){
-    if(direction == DIRN_UP){
-        for (int i = currentFloor; i < N_FLOORS; ++i)
-        {
-            
+
+void checkButtonsAddToQueue(){
+    for (int floor = 0; floor < N_FLOORS; ++floor)
+    {
+        if (floor != 0 && buttonPressed(BUTTON_CALL_DOWN, floor)){
+            addToQueue(BUTTON_CALL_DOWN, floor);
+        }
+        if (floor != TOP_FLOOR && buttonPressed(BUTTON_CALL_UP, floor)){
+            addToQueue(BUTTON_CALL_UP, floor);
+        }
+        if(buttonPressed(BUTTON_COMMAND, floor)){
+            addToQueue(BUTTON_COMMAND, floor);
         }
     }
-    else if (direction == DIRN_DOWN){
-        for (int i = 0; i < count; ++i)
-        {
-            /* code */
-        }
+}
+
+
+///////////IKKE FERDIG///////////////////////
+void handleEmergencyStop(){
+    //stops elevator
+    stopMotor();
+    for (i = 0; i < N_FLOORS; ++i) {//deletes all orders in queue
+        if (i != 0)
+            removeFromQueue(BUTTON_CALL_DOWN, i);
+
+        if (i != N_FLOORS - 1)
+            removeFromQueue(BUTTON_CALL_UP, i);
+
+        removeFromQueue(BUTTON_COMMAND, i);
     }
-    else{
+
+    if(getFloorSensor() != -1){//if elevator is in floor when pressed: the door is opened, timer starts
+        currentFloor = getFloorSensor();
+        openDoor();
+        startTimer();
+    }
+
+    while(stopIsPressed()){//runs while button is pressed (so no orders can come in)
+        startTimer();
 
     }
 }
-////////////////////////
+/////////////////////////////////
+
 
 void update() {
+    if(stopIsPressed()){
+        state = EMERGENCY_STOP;
+    }
+
+
+    checkButtonsAddToQueue();
+    checkFloorReachedUpdateQueue();
+    updateFloorLight();
+
     switch (state) {
         case MOVING_UP:
             direction = DIRN_UP;
@@ -87,13 +139,27 @@ void update() {
             direction = DIRN_DOWN;
             startMotor(direction);
             break;
-        case WAIT:
+        case WAIT: //if elevator waiting in a floor
             stopMotor();
+            openDoor();
+            if(timerTimeOut()){ //Hvis timer > 3
+                closeDoor();
+                if(direction == DIRN_UP){
+                    for (int i = currentFloor+1; i < N_FLOORS; ++i){
+                        if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i))
+                            state = MOVING_UP;
+                    }
+                }
+                else if(direction == DIRN_DOWN){
+                    for (int i = currentFloor-1; i > BOTTOM_FLOOR; --i){
+                        if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i))
+                            state = MOVING_DOWN;
+                    }
+                }
+            }
             break;
-        case EMERGENCY_STOP: //not in use yet
+        case EMERGENCY_STOP:
+            handleEmergencyStop();
             break;
     }
-
-    updateFloorLight();
-    updateQueue();
 }
