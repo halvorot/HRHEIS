@@ -111,10 +111,17 @@ void checkButtonsAddToQueue(){
     }
 }
 
-
+// HAR BARE LAGT INN CHECK FOR COMMAND BUTTONS
 void checkIfShouldStop(){
     for(int floor = 0; floor < N_FLOORS; floor++){
         if(getQueue(BUTTON_COMMAND, floor) && getFloorSensor() == floor){
+            state = WAIT;
+        }
+        //IKKE FERDIG, MÅ LEGGE INN FLERE SJEKKER FOR RETNING OSV.
+        if(floor != TOP_FLOOR && getQueue(BUTTON_CALL_UP, floor) && getFloorSensor() == floor){
+            state = WAIT;
+        }
+        if(floor != BOTTOM_FLOOR && getQueue(BUTTON_CALL_DOWN, floor) && getFloorSensor() == floor){
             state = WAIT;
         }
     }
