@@ -1,0 +1,11 @@
+Oppgaver Heisprosjekt
+
+1. Use case diagram, muntlig forklaring av scenario, preconditions, trigger etc...
+2. Arkitekturmodell, alle hovedmodulene og deres dataflyt
+2. a) minimum ett sekvensdiagram for følgende scenario:
+	*Heisen står tom og stille i 2. etg med døra åpen
+	*En person signaliserer fra 1. etg at hun ønsker transport oppover
+	*Når heisen kommer, bestiller hun transport til 3. etg.
+	*Scenarioet avsluttes når heisen befinner seg i 3. etg og døra åpnes
+	*For enkelhets skyld antar vi at ingen andre personer interagerer med systemet i løpet av scenarioet
+3. Moduldesign: classe og tilstansdiagrammer
