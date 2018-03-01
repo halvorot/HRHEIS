@@ -4,7 +4,10 @@
 #include "elevator_io.h"
 #include "timer.h"
 #include "globals.h"
+#include <stdio.h>
 
+void printQueue();
+void printState();
 
 //initiates the elevator to go UP to the nearest floor (when program starts)
 void elevatorInitiate();

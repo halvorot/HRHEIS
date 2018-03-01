@@ -5,11 +5,11 @@
 #include "globals.h"
 
 //starts motor in direction <dir>
-void startMotor(drection_t dir);
+void startMotor(direction_t dir);
 void stopMotor();
 
-void openDoor();
-void closeDoor();
+void setDoorLight();
+void resetDoorLight();
 
 //returns -1 if elevator is not on a floor. 0-3 if elevator is on floor.
 int getFloorSensor();
@@ -27,7 +27,7 @@ int stopIsPressed();
 //makes a buttons lamp light up
 void setButtonLamp(button_t button, int floor);
 //turns off a buttons lamp light
-void resetButtonLamp(button_t button, int floor)
+void resetButtonLamp(button_t button, int floor);
 
 
 //makes the stop lamp light up

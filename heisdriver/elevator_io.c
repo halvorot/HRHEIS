@@ -9,11 +9,11 @@ void stopMotor() {
     elev_set_motor_direction(DIRN_STOP);
 }
 
-void io_openDoor(){
+void setDoorLight(){
     elev_set_door_open_lamp(1);
 }
 
-void io_closeDoor(){
+void resetDoorLight(){
     elev_set_door_open_lamp(0);
 }
 
