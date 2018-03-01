@@ -24,13 +24,13 @@ void printState(){
     else if(state == WAIT)
         printf("state = WAIT");
     
-    printf("\n");
+    printf("\n%d \n", direction);
 }
 
 void elevatorInitiate(){
     direction = DIRN_UP;
     int floor = getFloorSensor();
-    if(floor != -1){
+    if(floor != -1){//if elevator is in floor
         currentFloor = floor;
         state = WAIT;
     }
@@ -39,7 +39,6 @@ void elevatorInitiate(){
         state = MOVING_UP;
         while(getFloorSensor() == -1){ /*intentionally empty, waits until it reaches floor*/ }
         stopMotor();
-        direction = DIRN_STOP;
         state = WAIT;
     }
 }
@@ -86,10 +85,12 @@ void checkFloorReachedUpdateQueue(){
     {
         if(floor == getFloorSensor() && doorOpen){
             removeFromQueue(BUTTON_COMMAND, floor);
-            if (direction == DIRN_UP)
+            if (direction == DIRN_UP && floor != TOP_FLOOR){
                 removeFromQueue(BUTTON_CALL_UP, floor);
-            else if(direction == DIRN_DOWN)
+            }
+            else if(direction == DIRN_DOWN && floor != BOTTOM_FLOOR){
                 removeFromQueue(BUTTON_CALL_DOWN, floor);
+            }
         }
     }
 }
@@ -106,6 +107,15 @@ void checkButtonsAddToQueue(){
         }
         if(buttonPressed(BUTTON_COMMAND, floor)){
             addToQueue(BUTTON_COMMAND, floor);
+        }
+    }
+}
+
+
+void checkIfShouldStop(){
+    for(int floor = 0; floor < N_FLOORS; floor++){
+        if(getQueue(BUTTON_COMMAND, floor) && getFloorSensor() == floor){
+            state = WAIT;
         }
     }
 }
@@ -150,8 +160,11 @@ void update() {
     checkFloorReachedUpdateQueue();
     updateFloorLight();
 
+    checkIfShouldStop();
+
     switch (state) {
         case MOVING_UP:
+            closeDoor();
             direction = DIRN_UP;
             startMotor(direction);
             if(getFloorSensor() == TOP_FLOOR){
@@ -161,29 +174,43 @@ void update() {
             }
             break;
         case MOVING_DOWN:
+            closeDoor();
             direction = DIRN_DOWN;
             startMotor(direction);
             if(getFloorSensor() == BOTTOM_FLOOR){
+                printState();
                 stopMotor();
                 state = WAIT;
             }
             break;
         case WAIT: //if elevator waiting in a floor
+            openDoor();
             stopMotor();
             startTimer();
             //if(timerTimeOut()){ //Hvis timer > 3
                 stopTimer();
-                closeDoor();
+                //closeDoor();
+                int foundOrder = 0;
                 if(direction == DIRN_UP){
                     for (int i = currentFloor+1; i < N_FLOORS; ++i){
-                        if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i))
+                        if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i)){
                             state = MOVING_UP;
+                            foundOrder = 1;
+                        }
+                    }
+                    if(!foundOrder){
+                        direction = DIRN_DOWN;
                     }
                 }
                 else if(direction == DIRN_DOWN){
-                    for (int i = currentFloor-1; i > BOTTOM_FLOOR; --i){
-                        if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i))
+                    for (int i = currentFloor-1; i >= BOTTOM_FLOOR; --i){
+                        if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)){
                             state = MOVING_DOWN;
+                            foundOrder = 1;
+                        }
+                    }
+                    if(!foundOrder){
+                        direction = DIRN_UP;
                     }
                 }
             //}

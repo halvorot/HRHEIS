@@ -30,6 +30,8 @@ void checkButtonsAddToQueue();
 
 void checkFloorReachedUpdateQueue();
 
+void checkIfShouldStop();
+
 
 //stops elevator when stop button is pressed
 //deletes all orders in queue
