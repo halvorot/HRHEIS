@@ -14,6 +14,9 @@ void startTimer(){
 int timerTimeOut(){
 	if(timerActive){
 		currentClock=clock();
+
+		printf("Timer: %.2f", (currentClock-startClock)/CLOCKS_PER_SEC );
+
 		if(((currentClock-startClock)/CLOCKS_PER_SEC) > 3){
 			stopTimer();
 			return 1;

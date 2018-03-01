@@ -3,6 +3,7 @@
 
 #include <time.h>
 #include "elevator_io.h"
+#include "globals.h"
 
 void startTimer();
 int timerTimeOut();
