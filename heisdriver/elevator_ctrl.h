@@ -40,6 +40,10 @@ void removeFromOrders(button_t button, int floor);
 int checkUpwards();
 int checkDownwards();
 
+
+///////////////////////////comments done to here/////////////////////////////////////
+
+
 //checks if any order is present and changes state accordingly
 void checkAllButtons();
 

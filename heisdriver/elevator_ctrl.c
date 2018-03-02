@@ -105,6 +105,9 @@ int checkDownwards(){
     return 0;
 }
 
+///////////////////////////comments done to here/////////////////////////////////////
+
+
 void checkAllButtons() {
 
     for (int i = 0; i < N_FLOORS; ++i){ //for all floors, all floor buttons
