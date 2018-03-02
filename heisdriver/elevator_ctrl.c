@@ -8,26 +8,6 @@ int doorOpen;
 int queue[N_FLOORS][3];
 
 
-void printQueue(){
-    for(int i = 0; i< N_FLOORS;i++){
-        for(int j = 0; j< 3;j++){
-            printf("%d ", queue[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-void printState(){
-    if(state == MOVING_UP)
-        printf("state = MOVING_UP");
-    else if(state == MOVING_DOWN)
-        printf("state = MOVING_DOWN");
-    else if(state == WAIT)
-        printf("state = WAIT");
-    
-    printf("\n%d \n", direction);
-}
-
 
 
 void elevatorInitiate(){
@@ -48,7 +28,7 @@ void elevatorInitiate(){
 
 
 void changeState(state_t s){
-    if(s == WAIT && state != WAIT){
+    if(s == WAIT && state != WAIT && state != EMERGENCY_STOP){
         openDoor();
         stopMotor();
         startTimer();
@@ -96,7 +76,7 @@ void removeFromQueue(button_t button, int floor){
 
 int checkUpwards(){
     for (int i = currentFloor+1; i < N_FLOORS; ++i){ //for every floor above the currentFloor
-        if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i)){
+        if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i) || getQueue(BUTTON_CALL_DOWN, i)){
             return 1;
         }
     }
@@ -105,7 +85,7 @@ int checkUpwards(){
 
 int checkDownwards(){
     for (int i = currentFloor-1; i >= BOTTOM_FLOOR; --i){
-        if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)){
+        if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i) || getQueue(BUTTON_CALL_UP, i)){
             return 1;
         }
     }
@@ -114,16 +94,23 @@ int checkDownwards(){
 
 void checkAllButtons() {
     for (int i = 0; i < N_FLOORS; ++i){ //for all floors, all floor buttons
-        if (i >= currentFloor) {
-            if (getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)) {
+
+        if (getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)) {
+            if (i > currentFloor){
                 changeState(MOVING_UP);
             }
-        }
-        else {
-            if (getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)) {
+            else if (i < currentFloor){
                 changeState(MOVING_DOWN);
             }
+            else {
+                if (direction == DIRN_UP) { changeState(MOVING_DOWN); }
+                else if (direction == DIRN_DOWN) { changeState(MOVING_UP); }
+            }
         }
+
+
+        
+        
 
 
     }
@@ -192,7 +179,12 @@ void handleEmergencyStop(){
     stopMotor();
 
 
-    for (int i = 0; i < N_FLOORS; ++i) {//deletes all orders in queue
+//if elevator is in floor when pressed: 
+//  *the door is opened
+//  *stays open three seconds after button is released
+
+    //deletes all orders in queue
+    for (int i = 0; i < N_FLOORS; ++i) {
         if (i != 0)
             removeFromQueue(BUTTON_CALL_DOWN, i);
 
@@ -202,31 +194,40 @@ void handleEmergencyStop(){
         removeFromQueue(BUTTON_COMMAND, i);
     }
 
+    //runs while button is pressed (so no orders can come in)
+    while(stopIsPressed()){
+        setStopLamp();
+        
+        //if elevator is in floor while pressed. Keeps door open and timer reset
+        if(getFloorSensor() != -1){
+            openDoor();
+            startTimer();
+        }
+    }
 
-    if(getFloorSensor() != -1){//if elevator is in floor when pressed: the door is opened, timer starts
+    resetStopLamp();
+
+    //if elevator is in floor when pressed: the door is opened
+    if(getFloorSensor() != -1){
         currentFloor = getFloorSensor();
-        openDoor();
         if(timerTimeOut()){ //Hvis timer > 3
             closeDoor();
         }
     }
-
-    while(stopIsPressed()){//runs while button is pressed (so no orders can come in)
-        startTimer();
-
-    }
     changeState(WAIT);
+    
+    
 }
 /////////////////////////////////
 
 
 
 void update() {
-    
     if(stopIsPressed()){
         changeState(EMERGENCY_STOP);
     }
 
+    printf("Direction: %d\n",direction);
    
     checkButtonsAddToQueue();
     checkFloorReachedUpdateQueue();

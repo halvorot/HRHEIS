@@ -7,9 +7,6 @@
 #include <stdio.h>
 
 
-//Functions for debugging and check what happens
-void printQueue();
-void printState();
 
 //initiates the elevator to go UP to the nearest floor (when program starts)
 //sets state to WAIT when floor is reached
@@ -57,13 +54,7 @@ void checkIfShouldStop();
 
 
 
-//stops elevator when stop button is pressed
-//deletes all orders in queue
-//runs while button is pressed (so no orders can come in)
-//
-//if elevator is in floor when pressed: 
-//  *the door is opened
-//  *stays open three seconds after button is released
+//handles what happens when stop button is pressed
 void handleEmergencyStop();
 
 

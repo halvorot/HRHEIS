@@ -17,7 +17,7 @@ int timerTimeOut(){
 	if(timerActive){
 		currentClock=clock();
 	}
-	printf("Timer: %ld \n", (currentClock-startClock)/CLOCKS_PER_SEC );
+	
 	if(((currentClock-startClock)/CLOCKS_PER_SEC) >= WAITTIME){
 		stopTimer();
 		return 1;
