@@ -12,8 +12,8 @@
 //sets state to WAIT when floor is reached
 void elevatorInitiate();
 
-
-void changeState(state_t s);
+//function to handle changing of states, accommodates previous state
+void changeState(state_t newstate);
 
 
 //Opens/Closes the door and updates variable doorOpen
@@ -25,20 +25,22 @@ void closeDoor();
 //sets floor indicator lamp of the currentFloor (or last known)
 void updateFloorLight();
 
+
+//Returns 1 if button is present in queue, 0 if not
 int getQueue(button_t button, int floor);
 
 
 //adds or removes an order from the queue
+//sets og resets button light
 void addToQueue(button_t button, int floor);
 void removeFromQueue(button_t button, int floor);
 
-//checks queue above the elevator
-int checkUpwards();
 
-//checks queue beneath the elevator
+//returns 1 if there are unhandled orders above/below the elevator, 0 otherwise
+int checkUpwards();
 int checkDownwards();
 
-//checks all directions, all floor buttons
+//checks if any order is present and changes state accordingly
 void checkAllButtons();
 
 //Checks if any of the ordering buttons are pressed and adds the order to queue if they are

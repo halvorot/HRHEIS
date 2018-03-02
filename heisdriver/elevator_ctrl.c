@@ -11,39 +11,51 @@ int queue[N_FLOORS][3];
 
 
 void elevatorInitiate(){
+
+    //initial direction
     direction = DIRN_UP;
+
     int floor = getFloorSensor();
-    if(floor != -1){//if elevator is in floor
+
+    //if elevator is in floor
+    if(floor != -1){
         currentFloor = floor;
         changeState(WAIT);
     }
+
     else{
         startMotor(direction);
         changeState(MOVING_UP);
-        while(getFloorSensor() == -1){ /*intentionally empty, waits until it reaches floor*/ }
+        while(getFloorSensor() == -1){ 
+            /*intentionally empty, waits until it reaches floor*/ 
+        }
         stopMotor();
         changeState(WAIT);
     }
 }
 
 
-void changeState(state_t s){
-    if(s == WAIT && state != WAIT && state != EMERGENCY_STOP){
+void changeState(state_t newstate){
+
+    //Makes sure WAIT state does not restart timer when idle
+    if(newstate == WAIT && state != WAIT && state != EMERGENCY_STOP){
         openDoor();
         stopMotor();
         startTimer();
     }
-    state = s;
+    state = newstate;
 }
 
 
 void openDoor(){
+
     if(doorOpen == 0){
         setDoorLight();
         doorOpen = 1;
     }
 }
 void closeDoor(){
+
     if(doorOpen == 1){
         resetDoorLight();
         doorOpen = 0;
@@ -51,39 +63,40 @@ void closeDoor(){
 }
 
 
-
 void updateFloorLight(){
 	if (getFloorSensor() != -1) {
          currentFloor = getFloorSensor();
     }
-
     setFloorIndicator(currentFloor);
 }
+
 
 int getQueue(button_t button, int floor){
     return queue[floor][button];
 }
 
+
 void addToQueue(button_t button, int floor){
     queue[floor][button] = 1;
     setButtonLamp(button, floor);
 }
-
 void removeFromQueue(button_t button, int floor){
     queue[floor][button] = 0;
     resetButtonLamp(button, floor);
 }
 
+
 int checkUpwards(){
-    for (int i = currentFloor+1; i < N_FLOORS; ++i){ //for every floor above the currentFloor
+
+    for (int i = currentFloor+1; i < N_FLOORS; ++i){ 
         if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i) || getQueue(BUTTON_CALL_DOWN, i)){
             return 1;
         }
     }
     return 0;
 }
-
 int checkDownwards(){
+
     for (int i = currentFloor-1; i >= BOTTOM_FLOOR; --i){
         if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i) || getQueue(BUTTON_CALL_UP, i)){
             return 1;
@@ -93,8 +106,10 @@ int checkDownwards(){
 }
 
 void checkAllButtons() {
+
     for (int i = 0; i < N_FLOORS; ++i){ //for all floors, all floor buttons
 
+        //executes if any type of button of a floor is ordered
         if (getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)) {
             if (i > currentFloor){
                 changeState(MOVING_UP);
@@ -107,12 +122,6 @@ void checkAllButtons() {
                 else if (direction == DIRN_DOWN) { changeState(MOVING_UP); }
             }
         }
-
-
-        
-        
-
-
     }
 }
 
