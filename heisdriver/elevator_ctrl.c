@@ -97,7 +97,6 @@ void removeFromQueue(button_t button, int floor){
 int checkUpwards(){
     for (int i = currentFloor+1; i < N_FLOORS; ++i){ //for every floor above the currentFloor
         if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i)){
-            changeState(MOVING_UP);
             return 1;
         }
     }
@@ -107,7 +106,6 @@ int checkUpwards(){
 int checkDownwards(){
     for (int i = currentFloor-1; i >= BOTTOM_FLOOR; --i){
         if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)){
-            changeState(MOVING_DOWN);
             return 1;
         }
     }
@@ -128,14 +126,6 @@ void checkAllButtons() {
         }
 
 
-
-        /*
-        if(getQueue(BUTTON_CALL_UP, i) || (getQueue(BUTTON_COMMAND, i) && i >= currentFloor)){
-            changeState(MOVING_UP);
-        }
-        if(getQueue(BUTTON_CALL_DOWN, i) || (getQueue(BUTTON_COMMAND, i) && i <= currentFloor)){
-            changeState(MOVING_DOWN);
-        }*/
     }
 }
 
@@ -174,29 +164,21 @@ void checkButtonsAddToQueue(){
 
 
 void checkIfShouldStop(){
-    /*
     for(int floor = 0; floor < N_FLOORS; floor++){
-    if (direction == DIRN_UP && getFloorSensor() == floor){
-        checkUpwards();
-    }
-    else if (direction == DIRN_DOWN && getFloorSensor() == floor){
-        checkDownwards();
-    }
-    checkAllButtons();
-    }*/
-
-
-    for(int floor = 0; floor < N_FLOORS; floor++){
-        if(getQueue(BUTTON_COMMAND, floor) && getFloorSensor() == floor){
-            changeState(WAIT);
-        }
-        if(floor != TOP_FLOOR){
-            if(getQueue(BUTTON_CALL_UP, floor) && getFloorSensor() == floor){
+        if(getFloorSensor() == floor){
+            if (getQueue(BUTTON_COMMAND, floor)){
                 changeState(WAIT);
             }
-        }
-        if(floor != BOTTOM_FLOOR){
-            if(getQueue(BUTTON_CALL_DOWN, floor) && getFloorSensor() == floor){
+            if (direction == DIRN_UP && getQueue(BUTTON_CALL_UP, floor)) {
+                changeState(WAIT);
+            }
+            if (direction == DIRN_DOWN && getQueue(BUTTON_CALL_DOWN, floor)) {
+                changeState(WAIT);
+            }
+            if (direction == DIRN_UP && getQueue(BUTTON_CALL_DOWN, floor) && !checkUpwards()) {
+                changeState(WAIT);
+            }
+            if (direction == DIRN_DOWN && getQueue(BUTTON_CALL_UP, floor) && !checkDownwards()) {
                 changeState(WAIT);
             }
         }
@@ -204,10 +186,12 @@ void checkIfShouldStop(){
 }
 
 
-///////////IKKE FERDIG///////////////////////
+
 void handleEmergencyStop(){
     //stops elevator
     stopMotor();
+
+
     for (int i = 0; i < N_FLOORS; ++i) {//deletes all orders in queue
         if (i != 0)
             removeFromQueue(BUTTON_CALL_DOWN, i);
@@ -218,10 +202,13 @@ void handleEmergencyStop(){
         removeFromQueue(BUTTON_COMMAND, i);
     }
 
+
     if(getFloorSensor() != -1){//if elevator is in floor when pressed: the door is opened, timer starts
         currentFloor = getFloorSensor();
         openDoor();
-        startTimer();
+        if(timerTimeOut()){ //Hvis timer > 3
+            closeDoor();
+        }
     }
 
     while(stopIsPressed()){//runs while button is pressed (so no orders can come in)
@@ -236,11 +223,9 @@ void handleEmergencyStop(){
 
 void update() {
     
-    /*if(stopIsPressed()){
+    if(stopIsPressed()){
         changeState(EMERGENCY_STOP);
-    }*/
-    //printState();
-    //printQueue();
+    }
 
    
     checkButtonsAddToQueue();
@@ -274,16 +259,18 @@ void update() {
                     if (!checkUpwards()){
                         checkAllButtons();
                     }
+                    else { changeState(MOVING_UP);}
                 }
                 else if (direction == DIRN_DOWN) {
                     if (!checkDownwards()) {
                         checkAllButtons();
                     }
+                    else { changeState(MOVING_DOWN);}
                 }
             }
             break;
         case EMERGENCY_STOP:
-            //handleEmergencyStop();
+            handleEmergencyStop();
             break;
     }
 }
