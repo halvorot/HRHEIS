@@ -8,19 +8,18 @@ clock_t currentClock;
 void startTimer(){
 	timerActive=1;
 	startClock=clock();
+	currentClock=clock();
 }
 
 
 int timerTimeOut(){
 	if(timerActive){
 		currentClock=clock();
-
-		printf("Timer: %.2f", (currentClock-startClock)/CLOCKS_PER_SEC );
-
-		if(((currentClock-startClock)/CLOCKS_PER_SEC) > 3){
-			stopTimer();
-			return 1;
-		}
+	}
+	printf("Timer: %ld \n", (currentClock-startClock)/CLOCKS_PER_SEC );
+	if(((currentClock-startClock)/CLOCKS_PER_SEC) >= 3){
+		stopTimer();
+		return 1;
 	}
 	return 0;
 }

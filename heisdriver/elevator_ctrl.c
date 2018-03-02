@@ -35,25 +35,39 @@ void elevatorInitiate(){
     int floor = getFloorSensor();
     if(floor != -1){//if elevator is in floor
         currentFloor = floor;
-        state = WAIT;
+        changeState(WAIT);
     }
     else{
         startMotor(direction);
-        state = MOVING_UP;
+        changeState(MOVING_UP);
         while(getFloorSensor() == -1){ /*intentionally empty, waits until it reaches floor*/ }
         stopMotor();
-        state = WAIT;
+        changeState(WAIT);
     }
+}
+
+
+void changeState(state_t s){
+    if(s == WAIT && state != WAIT){
+        openDoor();
+        stopMotor();
+        startTimer();
+    }
+    state = s;
 }
 
 
 void openDoor(){
-    setDoorLight();
-    doorOpen = 1;
+    if(doorOpen == 0){
+        setDoorLight();
+        doorOpen = 1;
+    }
 }
 void closeDoor(){
-    resetDoorLight();
-    doorOpen = 0;
+    if(doorOpen == 1){
+        resetDoorLight();
+        doorOpen = 0;
+    }
 }
 
 
@@ -115,18 +129,21 @@ void checkButtonsAddToQueue(){
 
 // HAR BARE LAGT INN CHECK FOR COMMAND BUTTONS
 void checkIfShouldStop(){
+    
     for(int floor = 0; floor < N_FLOORS; floor++){
         if(getQueue(BUTTON_COMMAND, floor) && getFloorSensor() == floor){
-            state = WAIT;
+            changeState(WAIT);
         }
         //IKKE FERDIG, MÅ LEGGE INN FLERE SJEKKER FOR RETNING OSV.
         if(floor != TOP_FLOOR){
-            if(getQueue(BUTTON_CALL_UP, floor) && getFloorSensor() == floor)
-                state = WAIT;
+            if(getQueue(BUTTON_CALL_UP, floor) && getFloorSensor() == floor){
+                changeState(WAIT);
+            }
         }
         if(floor != BOTTOM_FLOOR){
-            if(getQueue(BUTTON_CALL_DOWN, floor) && getFloorSensor() == floor)
-                state = WAIT;
+            if(getQueue(BUTTON_CALL_DOWN, floor) && getFloorSensor() == floor){
+                changeState(WAIT);
+            }
         }
     }
 }
@@ -156,16 +173,22 @@ void handleEmergencyStop(){
         startTimer();
 
     }
+    changeState(WAIT);
 }
 /////////////////////////////////
 
 
+
 void update() {
+    
     /*if(stopIsPressed()){
-        state = EMERGENCY_STOP;
+        changeState(EMERGENCY_STOP);
     }*/
-    printState();
-    printQueue();
+    //printState();
+    //printQueue();
+
+   
+
 
     checkButtonsAddToQueue();
     checkFloorReachedUpdateQueue();
@@ -181,7 +204,7 @@ void update() {
             if(getFloorSensor() == TOP_FLOOR){
                 printState();
                 stopMotor();
-                state = WAIT;
+                changeState(WAIT);
             }
             break;
         case MOVING_DOWN:
@@ -191,20 +214,18 @@ void update() {
             if(getFloorSensor() == BOTTOM_FLOOR){
                 printState();
                 stopMotor();
-                state = WAIT;
+                changeState(WAIT);
             }
             break;
         case WAIT: //if elevator waiting in a floor
-            stopMotor();
-            startTimer();
+            
             if(timerTimeOut()){ //Hvis timer > 3
-                stopTimer();
                 closeDoor();
                 int foundOrder = 0;
                 if(direction == DIRN_UP){ //prøv: || direction == DIRN_STOP
                     for (int i = currentFloor+1; i < N_FLOORS; ++i){
                         if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i)){
-                            state = MOVING_UP;
+                            changeState(MOVING_UP);
                             foundOrder = 1;
                         }
                     }
@@ -215,7 +236,7 @@ void update() {
                 else if(direction == DIRN_DOWN){ //prøv: || direction == DIRN_STOP
                     for (int i = currentFloor-1; i >= BOTTOM_FLOOR; --i){
                         if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)){
-                            state = MOVING_DOWN;
+                            changeState(MOVING_DOWN);
                             foundOrder = 1;
                         }
                     }
@@ -223,9 +244,6 @@ void update() {
                         direction = DIRN_UP; //prøv: DIRN_STOP?
                     }
                 }
-            }
-            else{
-                openDoor();
             }
             break;
         case EMERGENCY_STOP:

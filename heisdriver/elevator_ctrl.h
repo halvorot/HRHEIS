@@ -15,6 +15,10 @@ void printState();
 //sets state to WAIT when floor is reached
 void elevatorInitiate();
 
+
+void changeState(state_t s);
+
+
 //Opens/Closes the door and updates variable doorOpen
 void openDoor();
 void closeDoor();

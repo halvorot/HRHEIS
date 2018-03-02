@@ -2,6 +2,7 @@
 #define TIMER_H
 
 #include <time.h>
+#include <stdio.h>
 #include "elevator_io.h"
 #include "globals.h"
 
