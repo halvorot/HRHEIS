@@ -94,6 +94,51 @@ void removeFromQueue(button_t button, int floor){
     resetButtonLamp(button, floor);
 }
 
+int checkUpwards(){
+    for (int i = currentFloor+1; i < N_FLOORS; ++i){ //for every floor above the currentFloor
+        if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i)){
+            changeState(MOVING_UP);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int checkDownwards(){
+    for (int i = currentFloor-1; i >= BOTTOM_FLOOR; --i){
+        if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)){
+            changeState(MOVING_DOWN);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void checkAllButtons() {
+    for (int i = 0; i < N_FLOORS; ++i){ //for all floors, all floor buttons
+        if (i >= currentFloor) {
+            if (getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)) {
+                changeState(MOVING_UP);
+            }
+        }
+        else {
+            if (getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)) {
+                changeState(MOVING_DOWN);
+            }
+        }
+
+
+
+        /*
+        if(getQueue(BUTTON_CALL_UP, i) || (getQueue(BUTTON_COMMAND, i) && i >= currentFloor)){
+            changeState(MOVING_UP);
+        }
+        if(getQueue(BUTTON_CALL_DOWN, i) || (getQueue(BUTTON_COMMAND, i) && i <= currentFloor)){
+            changeState(MOVING_DOWN);
+        }*/
+    }
+}
+
 
 
 void checkFloorReachedUpdateQueue(){
@@ -101,10 +146,10 @@ void checkFloorReachedUpdateQueue(){
     {
         if(floor == getFloorSensor() && doorOpen){
             removeFromQueue(BUTTON_COMMAND, floor);
-            if (direction == DIRN_UP && floor != TOP_FLOOR){
+            if (floor != TOP_FLOOR){
                 removeFromQueue(BUTTON_CALL_UP, floor);
             }
-            else if(direction == DIRN_DOWN && floor != BOTTOM_FLOOR){
+            if(floor != BOTTOM_FLOOR){
                 removeFromQueue(BUTTON_CALL_DOWN, floor);
             }
         }
@@ -127,14 +172,24 @@ void checkButtonsAddToQueue(){
     }
 }
 
-// HAR BARE LAGT INN CHECK FOR COMMAND BUTTONS
+
 void checkIfShouldStop(){
-    
+    /*
+    for(int floor = 0; floor < N_FLOORS; floor++){
+    if (direction == DIRN_UP && getFloorSensor() == floor){
+        checkUpwards();
+    }
+    else if (direction == DIRN_DOWN && getFloorSensor() == floor){
+        checkDownwards();
+    }
+    checkAllButtons();
+    }*/
+
+
     for(int floor = 0; floor < N_FLOORS; floor++){
         if(getQueue(BUTTON_COMMAND, floor) && getFloorSensor() == floor){
             changeState(WAIT);
         }
-        //IKKE FERDIG, MÅ LEGGE INN FLERE SJEKKER FOR RETNING OSV.
         if(floor != TOP_FLOOR){
             if(getQueue(BUTTON_CALL_UP, floor) && getFloorSensor() == floor){
                 changeState(WAIT);
@@ -188,8 +243,6 @@ void update() {
     //printQueue();
 
    
-
-
     checkButtonsAddToQueue();
     checkFloorReachedUpdateQueue();
     updateFloorLight();
@@ -202,8 +255,6 @@ void update() {
             direction = DIRN_UP;
             startMotor(direction);
             if(getFloorSensor() == TOP_FLOOR){
-                printState();
-                stopMotor();
                 changeState(WAIT);
             }
             break;
@@ -212,8 +263,6 @@ void update() {
             direction = DIRN_DOWN;
             startMotor(direction);
             if(getFloorSensor() == BOTTOM_FLOOR){
-                printState();
-                stopMotor();
                 changeState(WAIT);
             }
             break;
@@ -221,27 +270,14 @@ void update() {
             
             if(timerTimeOut()){ //Hvis timer > 3
                 closeDoor();
-                int foundOrder = 0;
-                if(direction == DIRN_UP){ //prøv: || direction == DIRN_STOP
-                    for (int i = currentFloor+1; i < N_FLOORS; ++i){
-                        if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i)){
-                            changeState(MOVING_UP);
-                            foundOrder = 1;
-                        }
-                    }
-                    if(!foundOrder){
-                        direction = DIRN_DOWN; //prøv: DIRN_STOP?
+                if (direction == DIRN_UP) {
+                    if (!checkUpwards()){
+                        checkAllButtons();
                     }
                 }
-                else if(direction == DIRN_DOWN){ //prøv: || direction == DIRN_STOP
-                    for (int i = currentFloor-1; i >= BOTTOM_FLOOR; --i){
-                        if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)){
-                            changeState(MOVING_DOWN);
-                            foundOrder = 1;
-                        }
-                    }
-                    if(!foundOrder){
-                        direction = DIRN_UP; //prøv: DIRN_STOP?
+                else if (direction == DIRN_DOWN) {
+                    if (!checkDownwards()) {
+                        checkAllButtons();
                     }
                 }
             }
@@ -251,3 +287,4 @@ void update() {
             break;
     }
 }
+

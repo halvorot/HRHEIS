@@ -35,6 +35,15 @@ int getQueue(button_t button, int floor);
 void addToQueue(button_t button, int floor);
 void removeFromQueue(button_t button, int floor);
 
+//checks queue above the elevator
+int checkUpwards();
+
+//checks queue beneath the elevator
+int checkDownwards();
+
+//checks all directions, all floor buttons
+void checkAllButtons();
+
 //Checks if any of the ordering buttons are pressed and adds the order to queue if they are
 void checkButtonsAddToQueue();
 
