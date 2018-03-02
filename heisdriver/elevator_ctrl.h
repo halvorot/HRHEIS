@@ -26,14 +26,14 @@ void closeDoor();
 void updateFloorLight();
 
 
-//Returns 1 if button is present in queue, 0 if not
-int getQueue(button_t button, int floor);
+//Returns 1 if button is present in Orders, 0 if not
+int getOrders(button_t button, int floor);
 
 
-//adds or removes an order from the queue
+//adds or removes an order from the Orders
 //sets og resets button light
-void addToQueue(button_t button, int floor);
-void removeFromQueue(button_t button, int floor);
+void addToOrders(button_t button, int floor);
+void removeFromOrders(button_t button, int floor);
 
 
 //returns 1 if there are unhandled orders above/below the elevator, 0 otherwise
@@ -43,11 +43,11 @@ int checkDownwards();
 //checks if any order is present and changes state accordingly
 void checkAllButtons();
 
-//Checks if any of the ordering buttons are pressed and adds the order to queue if they are
-void checkButtonsAddToQueue();
+//Checks if any of the ordering buttons are pressed and adds the order to Orders if they are
+void checkButtonsAddToOrders();
 
-//removes the correct btns from queue and turns off btn light if the elevator reaches the floor and door opens
-void checkFloorReachedUpdateQueue();
+//removes the correct btns from Orders and turns off btn light if the elevator reaches the floor and door opens
+void checkFloorReachedUpdateOrders();
 
 
 //checks if the elevator should stop
@@ -64,7 +64,7 @@ void handleEmergencyStop();
 
 //HAS MAIN FUNCTIONALITY
 //checks if buttons are pressed
-//checks if a floor is reached and removes it from the queue
+//checks if a floor is reached and removes it from the Orders
 //chechs if elevator should stop at floor
 //updates the floor light
 //Tells elevator what to do depending on which STATE it is in

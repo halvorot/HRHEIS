@@ -5,7 +5,7 @@ direction_t direction; //keeps track of what direction we are (or last were) mov
 int currentFloor; //keeps track of what floor we are (or last were) in.
 int doorOpen;
 
-int queue[N_FLOORS][3];
+int orders[N_FLOORS][3];
 
 
 
@@ -71,17 +71,17 @@ void updateFloorLight(){
 }
 
 
-int getQueue(button_t button, int floor){
-    return queue[floor][button];
+int getOrders(button_t button, int floor){
+    return orders[floor][button];
 }
 
 
-void addToQueue(button_t button, int floor){
-    queue[floor][button] = 1;
+void addToOrders(button_t button, int floor){
+    orders[floor][button] = 1;
     setButtonLamp(button, floor);
 }
-void removeFromQueue(button_t button, int floor){
-    queue[floor][button] = 0;
+void removeFromOrders(button_t button, int floor){
+    orders[floor][button] = 0;
     resetButtonLamp(button, floor);
 }
 
@@ -89,7 +89,7 @@ void removeFromQueue(button_t button, int floor){
 int checkUpwards(){
 
     for (int i = currentFloor+1; i < N_FLOORS; ++i){ 
-        if(getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_COMMAND, i) || getQueue(BUTTON_CALL_DOWN, i)){
+        if(getOrders(BUTTON_CALL_UP, i) || getOrders(BUTTON_COMMAND, i) || getOrders(BUTTON_CALL_DOWN, i)){
             return 1;
         }
     }
@@ -98,7 +98,7 @@ int checkUpwards(){
 int checkDownwards(){
 
     for (int i = currentFloor-1; i >= BOTTOM_FLOOR; --i){
-        if (getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i) || getQueue(BUTTON_CALL_UP, i)){
+        if (getOrders(BUTTON_CALL_DOWN, i) || getOrders(BUTTON_COMMAND, i) || getOrders(BUTTON_CALL_UP, i)){
             return 1;
         }
     }
@@ -110,7 +110,7 @@ void checkAllButtons() {
     for (int i = 0; i < N_FLOORS; ++i){ //for all floors, all floor buttons
 
         //executes if any type of button of a floor is ordered
-        if (getQueue(BUTTON_CALL_UP, i) || getQueue(BUTTON_CALL_DOWN, i) || getQueue(BUTTON_COMMAND, i)) {
+        if (getOrders(BUTTON_CALL_UP, i) || getOrders(BUTTON_CALL_DOWN, i) || getOrders(BUTTON_COMMAND, i)) {
             if (i > currentFloor){
                 changeState(MOVING_UP);
             }
@@ -127,33 +127,33 @@ void checkAllButtons() {
 
 
 
-void checkFloorReachedUpdateQueue(){
+void checkFloorReachedUpdateOrders(){
     for (int floor = 0; floor < N_FLOORS; ++floor)
     {
         if(floor == getFloorSensor() && doorOpen){
-            removeFromQueue(BUTTON_COMMAND, floor);
+            removeFromOrders(BUTTON_COMMAND, floor);
             if (floor != TOP_FLOOR){
-                removeFromQueue(BUTTON_CALL_UP, floor);
+                removeFromOrders(BUTTON_CALL_UP, floor);
             }
             if(floor != BOTTOM_FLOOR){
-                removeFromQueue(BUTTON_CALL_DOWN, floor);
+                removeFromOrders(BUTTON_CALL_DOWN, floor);
             }
         }
     }
 }
 
 
-void checkButtonsAddToQueue(){
+void checkButtonsAddToOrders(){
     for (int floor = 0; floor < N_FLOORS; ++floor)
     {
         if (floor != 0 && buttonPressed(BUTTON_CALL_DOWN, floor)){
-            addToQueue(BUTTON_CALL_DOWN, floor);
+            addToOrders(BUTTON_CALL_DOWN, floor);
         }
         if (floor != TOP_FLOOR && buttonPressed(BUTTON_CALL_UP, floor)){
-            addToQueue(BUTTON_CALL_UP, floor);
+            addToOrders(BUTTON_CALL_UP, floor);
         }
         if(buttonPressed(BUTTON_COMMAND, floor)){
-            addToQueue(BUTTON_COMMAND, floor);
+            addToOrders(BUTTON_COMMAND, floor);
         }
     }
 }
@@ -162,19 +162,19 @@ void checkButtonsAddToQueue(){
 void checkIfShouldStop(){
     for(int floor = 0; floor < N_FLOORS; floor++){
         if(getFloorSensor() == floor){
-            if (getQueue(BUTTON_COMMAND, floor)){
+            if (getOrders(BUTTON_COMMAND, floor)){
                 changeState(WAIT);
             }
-            if (direction == DIRN_UP && getQueue(BUTTON_CALL_UP, floor)) {
+            if (direction == DIRN_UP && getOrders(BUTTON_CALL_UP, floor)) {
                 changeState(WAIT);
             }
-            if (direction == DIRN_DOWN && getQueue(BUTTON_CALL_DOWN, floor)) {
+            if (direction == DIRN_DOWN && getOrders(BUTTON_CALL_DOWN, floor)) {
                 changeState(WAIT);
             }
-            if (direction == DIRN_UP && getQueue(BUTTON_CALL_DOWN, floor) && !checkUpwards()) {
+            if (direction == DIRN_UP && getOrders(BUTTON_CALL_DOWN, floor) && !checkUpwards()) {
                 changeState(WAIT);
             }
-            if (direction == DIRN_DOWN && getQueue(BUTTON_CALL_UP, floor) && !checkDownwards()) {
+            if (direction == DIRN_DOWN && getOrders(BUTTON_CALL_UP, floor) && !checkDownwards()) {
                 changeState(WAIT);
             }
         }
@@ -192,15 +192,15 @@ void handleEmergencyStop(){
 //  *the door is opened
 //  *stays open three seconds after button is released
 
-    //deletes all orders in queue
+    //deletes all orders in Orders
     for (int i = 0; i < N_FLOORS; ++i) {
         if (i != 0)
-            removeFromQueue(BUTTON_CALL_DOWN, i);
+            removeFromOrders(BUTTON_CALL_DOWN, i);
 
         if (i != N_FLOORS - 1)
-            removeFromQueue(BUTTON_CALL_UP, i);
+            removeFromOrders(BUTTON_CALL_UP, i);
 
-        removeFromQueue(BUTTON_COMMAND, i);
+        removeFromOrders(BUTTON_COMMAND, i);
     }
 
     //runs while button is pressed (so no orders can come in)
@@ -238,8 +238,8 @@ void update() {
 
     printf("Direction: %d\n",direction);
    
-    checkButtonsAddToQueue();
-    checkFloorReachedUpdateQueue();
+    checkButtonsAddToOrders();
+    checkFloorReachedUpdateOrders();
     updateFloorLight();
 
     checkIfShouldStop();
