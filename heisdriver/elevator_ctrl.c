@@ -95,6 +95,7 @@ int checkUpwards(){
     }
     return 0;
 }
+
 int checkDownwards(){
 
     for (int i = currentFloor-1; i >= BOTTOM_FLOOR; --i){
