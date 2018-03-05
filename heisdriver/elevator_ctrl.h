@@ -31,7 +31,7 @@ int getOrders(button_t button, int floor);
 
 
 //adds or removes an order from the Orders
-//sets og resets button light
+//sets or resets button light
 void addToOrders(button_t button, int floor);
 void removeFromOrders(button_t button, int floor);
 

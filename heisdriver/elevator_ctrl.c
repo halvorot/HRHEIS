@@ -120,7 +120,7 @@ void checkAllButtons() {
             else if (i < currentFloor){
                 changeState(MOVING_DOWN);
             }
-            else {
+            else { //handles the case where elevator was stopped between floors and is ordered to currentFloor
                 if (direction == DIRN_UP) { changeState(MOVING_DOWN); }
                 else if (direction == DIRN_DOWN) { changeState(MOVING_UP); }
             }
@@ -238,8 +238,6 @@ void update() {
     if(stopIsPressed()){
         changeState(EMERGENCY_STOP);
     }
-
-    printf("Direction: %d\n",direction);
    
     checkButtonsAddToOrders();
     checkFloorReachedUpdateOrders();
@@ -264,9 +262,9 @@ void update() {
                 changeState(WAIT);
             }
             break;
-        case WAIT: //if elevator waiting in a floor
+        case WAIT: //if elevator is waiting in a floor
             
-            if(timerTimeOut()){ //Hvis timer > 3
+            if(timerTimeOut()){ //If timer > 3
                 closeDoor();
                 if (direction == DIRN_UP) {
                     if (!checkUpwards()){
