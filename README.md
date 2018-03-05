@@ -1,4 +1,4 @@
-# Halvor og Rune Heisprosjekt Tilpassede datasystemer vår 2018
+# Heisprosjekt Tilpassede datasystemer vår 2018
 ## Ny versjon av heisprosjekt pga fuckups
 
 ### Naming
