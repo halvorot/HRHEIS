@@ -1,0 +1,6 @@
+things to do:
+
+*Endre navn på checkAllButtons til checkOrdersChangeState()
+*endre navn på checkUpwards og checkDownwards til checkOrdersUp/Down()
+*fixe mellomlagring av currentFloor
+*kommenter ferdig
