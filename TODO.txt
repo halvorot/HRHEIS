@@ -1,6 +1,9 @@
 things to do:
 
-*Endre navn pÂ checkAllButtons til checkOrdersChangeState()
-*endre navn pÂ checkUpwards og checkDownwards til checkOrdersUp/Down()
-*fixe mellomlagring av currentFloor
+*Endre navn p√• checkAllButtons til checkOrdersChangeState()
+*endre navn p√• checkUpwards og checkDownwards til checkOrdersOver/Under()
+*Endre navn p√• startClock og currentClock til start/currentTIME
 *kommenter ferdig
+*Activity diagram
+*Communication diagram
+*Timing diagram
