@@ -1,8 +1,5 @@
 things to do:
 
-*Endre navn på checkAllButtons til checkOrdersChangeState()
-*endre navn på checkUpwards og checkDownwards til checkOrdersOver/Under()
-*Endre navn på startClock og currentClock til start/currentTIME
 *kommenter ferdig
 *Activity diagram
 *Communication diagram
